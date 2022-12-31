@@ -1,0 +1,141 @@
+VERSION ""
+
+
+NS_ : 
+	NS_DESC_
+	CM_
+	BA_DEF_
+	BA_
+	VAL_
+	CAT_DEF_
+	CAT_
+	FILTER
+	BA_DEF_DEF_
+	EV_DATA_
+	ENVVAR_DATA_
+	SGTYPE_
+	SGTYPE_VAL_
+	BA_DEF_SGTYPE_
+	BA_SGTYPE_
+	SIG_TYPE_REF_
+	VAL_TABLE_
+	SIG_GROUP_
+	SIG_VALTYPE_
+	SIGTYPE_VALTYPE_
+	BO_TX_BU_
+	BA_DEF_REL_
+	BA_REL_
+	BA_DEF_DEF_REL_
+	BU_SG_REL_
+	BU_EV_REL_
+	BU_BO_REL_
+	SG_MUL_VAL_
+
+BS_:
+
+BU_: OXE GPS CH DISP PCM
+
+
+BO_ 2634015744 OxeProprietary4: 8 OXE
+ SG_ GpcState : 24|8@1+ (1,0) [0|255] "bitfield" Vector__XXX
+ SG_ GpcDuty : 32|8@1+ (2,3) [0|100] "%" Vector__XXX
+ SG_ GpcModuleFaults : 40|8@1+ (1,0) [0|255] "bitfield" Vector__XXX
+
+BO_ 2634014976 OxeProprietary1: 8 OXE
+ SG_ ActualClutchSlip : 48|8@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ ControlheadPosition : 56|8@1+ (1,0) [0|100] "%" Vector__XXX
+ SG_ PropellerSpeed : 24|16@1+ (0.25,0) [0|16383] "rpm" Vector__XXX
+ SG_ RequestClutchSlip : 40|8@1+ (1,0) [0|100] "%" Vector__XXX
+
+BO_ 2516388864 TemperatureExtendedRange: 8 OXE
+ SG_ TemperatueSource M : 16|8@1+ (1,0) [0|255] "multiplexor" Vector__XXX
+ SG_ EngineRoomTemp m3 : 24|24@1+ (0.001,0) [0|16777.2] "°K" Vector__XXX
+ SG_ ExhaustGasTemp m14 : 24|24@1+ (0.001,0) [0|16777.2] "°K" Vector__XXX
+ SG_ IntakeManifoldTemp m129 : 24|24@1+ (0.001,0) [0|16777.2] "°K" Vector__XXX
+ SG_ FuelTemp m130 : 24|24@1+ (0.001,0) [0|16777.2] "°K" Vector__XXX
+ SG_ EcuTemp m131 : 24|24@1+ (0.001,0) [0|16777.2] "°K" Vector__XXX
+ SG_ CompressorOutTemp m132 : 24|24@1+ (0.001,0) [0|16777.2] "°K" Vector__XXX
+
+BO_ 2516388352 ActualPressure: 8 OXE
+ SG_ PressureSource M : 16|8@1+ (1,0) [0|255] "multiplexor" Vector__XXX
+ SG_ AtmosphericPressure m0 : 24|32@1- (0.1,0) [-2147480000|2147480000] "Pa" Vector__XXX
+ SG_ _GearboxOilPressure m4 : 24|32@1- (0.1,0) [-2147480000|2147480000] "Pa" Vector__XXX
+ SG_ _EngineOilPressure m7 : 24|32@1- (0.1,0) [-2147480000|2147480000] "Pa" Vector__XXX
+ SG_ FuelRailPressure m8 : 24|32@1- (0.1,0) [-2147480000|2147480000] "Pa" Vector__XXX
+
+BO_ 2515667200 TripParametersEngine: 9 OXE
+ SG_ FuelUsed : 8|16@1+ (0.001,0) [0|65.532] "m3" Vector__XXX
+ SG_ FuelRateAverage : 24|16@1- (0.0001,0) [-3.2764|3.2764] "m3/h" Vector__XXX
+ SG_ _FuelRate : 56|16@1- (0.0001,0) [-3.2764|3.2764] "m3/h" Vector__XXX
+
+BO_ 2314339584 TransmissionParametersDynamic: 8 OXE
+ SG_ GearboxOilPressure : 16|16@1+ (100,0) [0|6553200] "Pa" Vector__XXX
+ SG_ GearboxGear : 8|2@1+ (1,0) [0|3] "n" Vector__XXX
+ SG_ GearboxOilTemp : 32|16@1+ (0.1,0) [0|6553.2] "°K" Vector__XXX
+
+BO_ 2314338560 EngineParametersDynamic: 26 OXE
+ SG_ EngineOilPressure : 8|16@1+ (100,0) [0|6553200] "Pa" Vector__XXX
+ SG_ EngineOilTemp : 24|16@1+ (0.1,0) [0|6553.2] "°K" Vector__XXX
+ SG_ EngineCoolantTemp : 40|16@1+ (0.01,0) [0|655.32] "°K" Vector__XXX
+ SG_ BatteryVoltage : 56|16@1- (0.01,0) [-327.64|327.64] "V" Vector__XXX
+ SG_ FuelRate : 72|16@1- (0.0001,0) [-3.2764|3.2764] "m3/h" Vector__XXX
+ SG_ TotalEngineHours : 88|32@1+ (1,0) [0|4294967293] "s" Vector__XXX
+ SG_ EngineLoad : 192|8@1+ (1,0) [0|124] "%" Vector__XXX
+
+BO_ 2314338304 EngineParametersRapid: 8 OXE
+ SG_ EngineSpeed : 8|16@1+ (0.25,0) [0|16383] "rpm" Vector__XXX
+ SG_ BoostPressure : 24|16@1+ (100,0) [0|6553200] "Pa" Vector__XXX
+ SG_ PttTrim : 40|8@1+ (1,0) [0|100] "%" Vector__XXX
+
+
+BO_ 2298421247 _PositionRapidUpdate: 8 DISP
+ SG_ _Latitude : 0|32@1- (1e-07,0) [-90|90] "pdeg" Vector__XXX
+ SG_ _Longitude : 32|32@1- (1e-07,0) [-180|180] "pdeg" Vector__XXX
+
+BO_ 2298438911 ActuatorCommand: 8 CH
+ SG_ GearCommand : 24|4@1+ (1,0) [0|0] "n" Vector__XXX
+ SG_ ThrottleCommand : 32|16@1+ (0.1,0) [0|100] "%" Vector__XXX
+
+BO_ 2298421503 _CogSogRapidUpdate: 8 DISP
+ SG_ _SpeedOverGround : 32|16@1+ (0.01,0) [0|655.32] "m/s" Vector__XXX
+
+BO_ 2314732031 PositionRapidUpdate: 8 GPS
+ SG_ Latitude : 0|32@1- (1e-07,0) [-90|90] "pdeg" Vector__XXX
+ SG_ Longitude : 32|32@1- (1e-07,0) [-180|180] "pdeg" Vector__XXX
+
+BO_ 2314732287 CogSogRapidUpdate: 8 GPS
+ SG_ CourseOverGround : 16|16@1+ (0.0001,0) [0|6.2831] "rad" Vector__XXX
+ SG_ CourseOverGround_deg : 16|16@1+ (0.00572966,0) [0|360] "deg" Vector__XXX
+ SG_ SpeedOverGround : 32|16@1+ (0.01,0) [0|655.32] "m/s" Vector__XXX
+ SG_ SpeedOverGround_kn : 32|16@1+ (0.019438445,0) [0|1273.84] "kn" Vector__XXX
+
+BO_ 2298437631 PcmFeedback: 8 PCM
+ SG_ PortCylinderPosition : 32|16@1- (0.01,0) [-30|30] "deg" Vector__XXX
+ SG_ StbdCylinderPosition : 48|16@1- (0.01,0) [-30|30] "deg" Vector__XXX
+
+
+
+CM_ BO_ 2634015744 "";
+CM_ SG_ 2634015744 GpcState "";
+BA_DEF_ BO_  "VFrameFormat" ENUM  "StandardCAN","ExtendedCAN","reserved","J1939PG";
+BA_DEF_DEF_  "VFrameFormat" "J1939PG";
+BA_ "VFrameFormat" BO_ 2634015744 3;
+BA_ "VFrameFormat" BO_ 2634014976 3;
+BA_ "VFrameFormat" BO_ 2516388864 3;
+BA_ "VFrameFormat" BO_ 2516388352 3;
+BA_ "VFrameFormat" BO_ 2515667200 3;
+BA_ "VFrameFormat" BO_ 2314339584 3;
+BA_ "VFrameFormat" BO_ 2314338560 3;
+BA_ "VFrameFormat" BO_ 2314338304 3;
+BA_ "VFrameFormat" BO_ 2298421247 3;
+BA_ "VFrameFormat" BO_ 2298438911 3;
+BA_ "VFrameFormat" BO_ 2298421503 3;
+BA_ "VFrameFormat" BO_ 2314732031 3;
+BA_ "VFrameFormat" BO_ 2314732287 3;
+BA_ "VFrameFormat" BO_ 2298437631 3;
+VAL_ 2634015744 GpcState 0 "GPC_INITIAL" 1 "GPC_PRE_GLOW" 2 "GPC_NO_PRE_GLOW" 3 "GPC_READINESS_GLOW" 4 "GPC_START_GLOW" 5 "GPC_NO_START_GLOW" 6 "GPC_NO_POST_GLOW" 7 "GPC_POST_GLOW" 8 "GPC_GLOW_DONE" ;
+VAL_ 2516388864 TemperatueSource 3 "EngineRoom" 14 "ExhaustGas" 129 "IntakeManifold" 130 "Fuel" 131 "Ecu" 132 "CompressorOut" ;
+VAL_ 2516388352 PressureSource 0 "Atmospheric" 4 "Hydraulic" 7 "Oil" 8 "FuelRail" ;
+VAL_ 2314339584 GearboxGear 0 "Forward" 1 "Neutral" 2 "Reverse" 3 "Unknown" ;
+VAL_ 2298438911 GearCommand 0 "Forward" 1 "Neutral" 2 "Reverse" 14 "Error" 15 "N/A" ;
+
