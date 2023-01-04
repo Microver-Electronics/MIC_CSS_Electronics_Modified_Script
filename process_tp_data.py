@@ -139,7 +139,19 @@ def process_tp_example(devices, dbc_path, tp_type):
 
             new_db_modified = new_db_modified.append(row_dict, ignore_index=True)
 
-        new_db_modified.set_index('TimeStamp', inplace=True)
+        #if (new_db_modified['TimeStamp'] == None):
+
+            #print("TIMESTAMP YOK")
+
+        try:
+
+            new_db_modified.set_index('TimeStamp', inplace=True)  ## If there is no TimeStamp column, ignore that
+
+        except KeyError:
+
+            pass
+
+
         print("Process finished")
         new_db_modified.to_csv(f"{output_folder}/tp_physical_values_modified_format.csv")  ## output csv
 
