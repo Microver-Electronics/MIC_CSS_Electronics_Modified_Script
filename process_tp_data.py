@@ -73,40 +73,53 @@ def process_tp_example(devices, dbc_path, tp_type):
 
                     if (j == 'EngineModel'):
 
-                        if (engine_counter >= 2):
+                        values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
+
+                        if (engine_counter >= len(values)):
                             engine_counter = 0
 
-                        values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
-                        row_dict[j] = values[engine_counter]
+                        if (len(values) == 1):
+                            row_dict[j] = values[0]
+                        else:
+                            row_dict[j] = values[engine_counter]
+
                         engine_counter = engine_counter + 1
 
                     elif (j == 'EngineFwVersion'):
 
-                        if (engine_counter >= 2):
-                            engine_counter = 0
-
                         values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
 
-                        row_dict[j] = values[engine_counter]
+                        if (engine_counter >= len(values)):
+                            engine_counter = 0
+
+                        if (len(values) == 1):
+                            row_dict[j] = values[0]
+                        else:
+                            row_dict[j] = values[engine_counter]
 
                         engine_counter = engine_counter + 1
 
                     elif (j == 'EngineSwVersion'):
 
-                        if (engine_counter >= 2):
-                            engine_counter = 0
-
                         values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
 
-                        row_dict[j] = values[engine_counter]
+                        if (engine_counter >= len(values)):
+                            engine_counter = 0
+
+                        if(len(values)==1):
+
+                            row_dict[j] = values[0]
+                        else:
+                            row_dict[j] = values[engine_counter]
+
                         engine_counter = engine_counter + 1
 
                     elif (j == 'EngineSerialnumber'):
 
-                        if (serial_number_counter >= 3):
-                            serial_number_counter = 0
-
                         values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
+
+                        if (serial_number_counter >= len(values)):
+                            serial_number_counter = 0
 
                         row_dict[j] = values[serial_number_counter]
 

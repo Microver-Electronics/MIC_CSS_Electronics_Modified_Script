@@ -15,6 +15,8 @@
 
 ## Run
 
+- pip install -r requirements.txt
+
 *if you installed required packages*
 - python process_to_data.py
 
