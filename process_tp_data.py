@@ -1,11 +1,21 @@
 ## Microver 12/20/22   - Css Electronics API script modifying
 ## Our comment sign is started with 2 hashtags, anothers is original code comments
 
+import warnings
+warnings.filterwarnings('ignore')
 import canedge_browser, os
 from utils import setup_fs, load_dbc_files, ProcessData, MultiFrameDecoder
 import can_decoder
 import pandas as pd
 import numpy as np
+import re
+
+def extract_can_id(df):
+
+    unique_list = list()
+    for i in df['CAN ID']:
+        print((str(hex(i))[-2:]))
+        unique_list.append((str(hex(i))[-2:]))
 
 def process_tp_example(devices, dbc_path, tp_type):
     fs = setup_fs(s3=False)
@@ -49,9 +59,41 @@ def process_tp_example(devices, dbc_path, tp_type):
 
         modified_df['TimeStamp'] = modified_df.TimeStamp.dt.ceil(freq='s')  ## Freq parameter, it's changeable
 
+        signal_source_list = list()  ## Actual signal source list, filled with every signal source address
+
+        for i in modified_df['CAN ID']:
+
+            signal_source_list.append(str(hex(i))[-2:])
+
+        modified_df['Signal Source'] = signal_source_list
+
+        unique_source_address_list = modified_df['Signal Source'].unique() ## Unique source address list
+
+        signal_source_engine_model_dict = dict()  ## This is the dictionary that help with which source address belongs to which engine model
+
+        engine_model_list = list()
+
+        for source_address in unique_source_address_list:
+
+            signal_source_engine_model_dict[source_address] = (modified_df[modified_df['Signal Source'] == source_address][modified_df['Signal'] == 'EngineModel']['Physical Value'].values[0])
+
+        for i in modified_df['Signal Source'].values:
+
+            engine_model_list.append(signal_source_engine_model_dict.get(i))
+
+        modified_df['Engine Model'] = engine_model_list
+
+        for source_address in unique_source_address_list:
+
+            engine_specific_df = modified_df[modified_df['Signal Source'] == source_address]
+
+            engine_model = signal_source_engine_model_dict.get(source_address)
+
+            engine_specific_df.to_csv(f"{output_folder}/tp_engine_specific_physical_values_{engine_model}_{source_address}.csv")
+
         unique_time_stamp_list = modified_df['TimeStamp'].unique() ## getting unique time stamp to group one row with signal values
 
-        new_db_modified = pd.DataFrame() ## creating new db for output csv and adjusting
+        new_db_modified = pd.DataFrame() ## creating new df for output csv and adjusting
 
         engine_counter = 0
 
@@ -61,7 +103,7 @@ def process_tp_example(devices, dbc_path, tp_type):
 
             print("The program is running, next time stamp is", i)
 
-            temp_df = modified_df[modified_df['TimeStamp'] == i][['Signal', 'Physical Value']]
+            temp_df = modified_df[modified_df['TimeStamp'] == i][['Signal', 'Physical Value', 'CAN ID', 'Signal Source', 'Engine Model']]
 
             row_dict = dict()
 
@@ -131,17 +173,18 @@ def process_tp_example(devices, dbc_path, tp_type):
 
                 elif (temp_df[temp_df['Signal'] == j]['Physical Value'].empty):
 
-                    row_dict[j] = 0 ## if there is no value, set it to zero
+                    if j == 'EngineModel':
+
+                        row_dict[j] = str(pd.unique(temp_df['Engine Model'].values)).replace('[','').replace(']','').replace("'", '')
+
+                    else:
+
+                        row_dict[j] = None ## if there is no value, set it to None
 
                 else:
                     row_dict[j] = temp_df[temp_df['Signal'] == j]['Physical Value'].values.max()
 
-
-            new_db_modified = new_db_modified.append(row_dict, ignore_index=True)
-
-        #if (new_db_modified['TimeStamp'] == None):
-
-            #print("TIMESTAMP YOK")
+            new_db_modified = new_db_modified.append(row_dict, ignore_index=True) 
 
         try:
 
@@ -151,16 +194,14 @@ def process_tp_example(devices, dbc_path, tp_type):
 
             pass
 
-
         print("Process finished")
         new_db_modified.to_csv(f"{output_folder}/tp_physical_values_modified_format.csv")  ## output csv
 
         ## MICROVER POST PROCESSING END ##
-
         df_phys.to_csv(f"{output_folder}/tp_physical_values.csv")
         df_ascii.to_csv(f"{output_folder}/tp_physical_values_ascii.csv")
 
-    print("Finished saving CSV output for devices [Physical Values, Physical Values ASCII and Modifyed Format of Result CSV]:", devices)
+    print("Finished saving CSV output for devices [Physical Values, Physical Values ASCII, Modifyed Format of Result CSV and Engine Specific Messages CSV ]:", devices)
 
 # ----------------------------------------
 # run different TP examples

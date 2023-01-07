@@ -147,7 +147,6 @@ def add_custom_sig(df_phys, signal1, signal2, function, new_signal):
 
     return df_phys
 
-
 # -----------------------------------------------
 class ProcessData:
     def __init__(self, fs, db_list, signals=[], days_offset=None, verbose=True):
