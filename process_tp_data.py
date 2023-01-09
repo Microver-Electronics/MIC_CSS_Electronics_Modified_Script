@@ -10,6 +10,8 @@ import pandas as pd
 import numpy as np
 import re
 
+import PySimpleGUI as sg
+
 def extract_can_id(df):
 
     unique_list = list()
@@ -55,27 +57,41 @@ def process_tp_example(devices, dbc_path, tp_type):
 
         modified_df.sort_index(ascending=True, inplace=True)
 
-        modified_df['TimeStamp'] = pd.to_datetime(modified_df.TimeStamp, format='%Y-%m-%d %H:%M:%S')
+        ## 1 second granularity
+        #modified_df['TimeStamp'] = pd.to_datetime(modified_df.TimeStamp, format='%Y-%m-%d %H:%M:%S')
 
-        modified_df['TimeStamp'] = modified_df.TimeStamp.dt.ceil(freq='s')  ## Freq parameter, it's changeable
+        #modified_df['TimeStamp'] = modified_df.TimeStamp.dt.ceil(freq='s')
+
+        ## 100 millisecond granularity
+        modified_df['TimeStamp'] = pd.to_datetime(modified_df.TimeStamp, format='%Y-%m-%d %H:%M:%S:%f')
+
+        modified_df['TimeStamp'] = modified_df.TimeStamp.dt.ceil(freq='100ms')  ## Freq parameter, it's changeable
 
         signal_source_list = list()  ## Actual signal source list, filled with every signal source address
 
         for i in modified_df['CAN ID']:
-
-            signal_source_list.append(str(hex(i))[-2:])
+            signal_source_list.append(str(hex(int(i)))[-2:])
 
         modified_df['Signal Source'] = signal_source_list
 
         unique_source_address_list = modified_df['Signal Source'].unique() ## Unique source address list
+
+        print(unique_source_address_list)
 
         signal_source_engine_model_dict = dict()  ## This is the dictionary that help with which source address belongs to which engine model
 
         engine_model_list = list()
 
         for source_address in unique_source_address_list:
+            print(modified_df[modified_df['Signal'] == "EngineModel"])
 
-            signal_source_engine_model_dict[source_address] = (modified_df[modified_df['Signal Source'] == source_address][modified_df['Signal'] == 'EngineModel']['Physical Value'].values[0])
+            try:
+
+                signal_source_engine_model_dict[source_address] = (modified_df[modified_df['Signal Source'] == source_address][modified_df['Signal'] == 'EngineModel']['Physical Value'].values[0])
+
+            except IndexError:
+
+                sg.Popup('Error!', f"This {log_file} file doesn't have engine model PGN !")
 
         for i in modified_df['Signal Source'].values:
 
