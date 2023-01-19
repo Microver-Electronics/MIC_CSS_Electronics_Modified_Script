@@ -57,10 +57,24 @@ def process_tp_example(devices, dbc_path, tp_type):
 
         modified_df.sort_index(ascending=True, inplace=True)
 
-        ## 1 second granularity
-        #modified_df['TimeStamp'] = pd.to_datetime(modified_df.TimeStamp, format='%Y-%m-%d %H:%M:%S')
+        hex_id_list = list()
 
-        #modified_df['TimeStamp'] = modified_df.TimeStamp.dt.ceil(freq='s')
+        for i in modified_df['CAN ID']:
+
+            hex_id_list.append((str(hex(int(i)))[-2:]))
+
+        modified_df['HEX Signal Source'] = hex_id_list
+
+        print(modified_df['HEX Signal Source'].unique())
+
+        modified_df = modified_df.loc[~(modified_df['HEX Signal Source'] == 'f2')]
+
+        modified_df = modified_df.loc[~(modified_df['HEX Signal Source'] ==  None)]
+
+        ## 1 second granularity
+        # modified_df['TimeStamp'] = pd.to_datetime(modified_df.TimeStamp, format='%Y-%m-%d %H:%M:%S')
+        #
+        # modified_df['TimeStamp'] = modified_df.TimeStamp.dt.ceil(freq='s')
 
         ## 100 millisecond granularity
         modified_df['TimeStamp'] = pd.to_datetime(modified_df.TimeStamp, format='%Y-%m-%d %H:%M:%S:%f')
@@ -76,14 +90,11 @@ def process_tp_example(devices, dbc_path, tp_type):
 
         unique_source_address_list = modified_df['Signal Source'].unique() ## Unique source address list
 
-        print(unique_source_address_list)
-
         signal_source_engine_model_dict = dict()  ## This is the dictionary that help with which source address belongs to which engine model
 
         engine_model_list = list()
 
         for source_address in unique_source_address_list:
-            print(modified_df[modified_df['Signal'] == "EngineModel"])
 
             try:
 
@@ -99,119 +110,122 @@ def process_tp_example(devices, dbc_path, tp_type):
 
         modified_df['Engine Model'] = engine_model_list
 
-        for source_address in unique_source_address_list:
+        unique_time_stamp_list = modified_df['TimeStamp'].unique()
 
-            engine_specific_df = modified_df[modified_df['Signal Source'] == source_address]
-
-            engine_model = signal_source_engine_model_dict.get(source_address)
-
-            engine_specific_df.to_csv(f"{output_folder}/tp_engine_specific_physical_values_{engine_model}_{source_address}.csv")
-
-        unique_time_stamp_list = modified_df['TimeStamp'].unique() ## getting unique time stamp to group one row with signal values
-
-        new_db_modified = pd.DataFrame() ## creating new df for output csv and adjusting
+        engine_source_address_counter = 0
 
         engine_counter = 0
 
         serial_number_counter = 0
 
-        for i in unique_time_stamp_list:
+        for source_address in unique_source_address_list:
 
-            print("The program is running, next time stamp is", i)
+            engine_source_address_counter += 1
 
-            temp_df = modified_df[modified_df['TimeStamp'] == i][['Signal', 'Physical Value', 'CAN ID', 'Signal Source', 'Engine Model']]
+            engine_model_db = pd.DataFrame()  ## creating new df for output csv and adjusting
 
-            row_dict = dict()
+            engine_specific_df = modified_df[modified_df['Signal Source'] == source_address]
 
-            row_dict['TimeStamp'] = i
+            engine_model = signal_source_engine_model_dict.get(source_address)
 
-            for j in signals:
+            for time_stamp in unique_time_stamp_list:
 
-                if(len(temp_df[temp_df['Signal'] == j]['Physical Value'].values) > 1):
+                print("The program is running, next time stamp is", time_stamp, "Source Address", source_address, "Engine Model", engine_model)
 
-                    if (j == 'EngineModel'):
+                temp_df = engine_specific_df[engine_specific_df['TimeStamp'] == time_stamp][['Signal', 'Physical Value', 'CAN ID', 'Signal Source', 'Engine Model']]
 
-                        values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
+                row_dict = dict()
 
-                        if (engine_counter >= len(values)):
-                            engine_counter = 0
+                row_dict['TimeStamp'] = time_stamp
 
-                        if (len(values) == 1):
-                            row_dict[j] = values[0]
+                for signal in signals:
+
+                    if (len(temp_df[temp_df['Signal'] == signal]['Physical Value'].values) > 1):
+
+                        if (signal == 'EngineModel'):
+
+                            values = np.unique(temp_df[temp_df['Signal'] == signal]['Physical Value'].values)
+
+                            if (engine_counter >= len(values)):
+                                engine_counter = 0
+
+                            if (len(values) == 1):
+                                row_dict[signal] = values[0]
+                            else:
+                                row_dict[signal] = values[engine_counter]
+
+                            engine_counter = engine_counter + 1
+
+                        elif (signal == 'EngineFwVersion'):
+
+                            values = np.unique(temp_df[temp_df['Signal'] == signal]['Physical Value'].values)
+
+                            if (engine_counter >= len(values)):
+                                engine_counter = 0
+
+                            if (len(values) == 1):
+                                row_dict[signal] = values[0]
+                            else:
+                                row_dict[signal] = values[engine_counter]
+
+                            engine_counter = engine_counter + 1
+
+                        elif (signal == 'EngineSwVersion'):
+
+                            values = np.unique(temp_df[temp_df['Signal'] == signal]['Physical Value'].values)
+
+                            if (engine_counter >= len(values)):
+                                engine_counter = 0
+
+                            if (len(values) == 1):
+
+                                row_dict[signal] = values[0]
+                            else:
+                                row_dict[signal] = values[engine_counter]
+
+                            engine_counter = engine_counter + 1
+
+                        elif (signal == 'EngineSerialnumber'):
+
+                            values = np.unique(temp_df[temp_df['Signal'] == signal]['Physical Value'].values)
+
+                            if (serial_number_counter >= len(values)):
+                                serial_number_counter = 0
+
+                            row_dict[signal] = values[serial_number_counter]
+
+                            serial_number_counter = serial_number_counter + 1
+
                         else:
-                            row_dict[j] = values[engine_counter]
 
-                        engine_counter = engine_counter + 1
+                            row_dict[signal] = temp_df[temp_df['Signal'] == signal]['Physical Value'].max()
 
-                    elif (j == 'EngineFwVersion'):
+                    elif (temp_df[temp_df['Signal'] == signal]['Physical Value'].empty):
 
-                        values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
+                        if signal == 'EngineModel':
 
-                        if (engine_counter >= len(values)):
-                            engine_counter = 0
+                            row_dict[signal] = str(pd.unique(temp_df['Engine Model'].values)).replace('[', '').replace(']','').replace("'", '')
 
-                        if (len(values) == 1):
-                            row_dict[j] = values[0]
                         else:
-                            row_dict[j] = values[engine_counter]
 
-                        engine_counter = engine_counter + 1
-
-                    elif (j == 'EngineSwVersion'):
-
-                        values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
-
-                        if (engine_counter >= len(values)):
-                            engine_counter = 0
-
-                        if(len(values)==1):
-
-                            row_dict[j] = values[0]
-                        else:
-                            row_dict[j] = values[engine_counter]
-
-                        engine_counter = engine_counter + 1
-
-                    elif (j == 'EngineSerialnumber'):
-
-                        values = np.unique(temp_df[temp_df['Signal'] == j]['Physical Value'].values)
-
-                        if (serial_number_counter >= len(values)):
-                            serial_number_counter = 0
-
-                        row_dict[j] = values[serial_number_counter]
-
-                        serial_number_counter = serial_number_counter + 1
+                            row_dict[signal] = None  ## if there is no value, set it to None
 
                     else:
+                        row_dict[signal] = temp_df[temp_df['Signal'] == signal]['Physical Value'].values.max()
 
-                        row_dict[j] = temp_df[temp_df['Signal'] == j]['Physical Value'].max()
+                engine_model_db = engine_model_db.append(row_dict, ignore_index=True)
 
-                elif (temp_df[temp_df['Signal'] == j]['Physical Value'].empty):
+            try:
 
-                    if j == 'EngineModel':
+                engine_model_db.set_index('TimeStamp', inplace=True)  ## If there is no TimeStamp column, ignore that
 
-                        row_dict[j] = str(pd.unique(temp_df['Engine Model'].values)).replace('[','').replace(']','').replace("'", '')
+            except KeyError:
 
-                    else:
+                print("Time Stamp Error")
 
-                        row_dict[j] = None ## if there is no value, set it to None
-
-                else:
-                    row_dict[j] = temp_df[temp_df['Signal'] == j]['Physical Value'].values.max()
-
-            new_db_modified = new_db_modified.append(row_dict, ignore_index=True) 
-
-        try:
-
-            new_db_modified.set_index('TimeStamp', inplace=True)  ## If there is no TimeStamp column, ignore that
-
-        except KeyError:
-
-            pass
+            engine_model_db.to_csv(f"{output_folder}/tp_engine_specific_physical_values_Engine_{engine_source_address_counter}.csv")
 
         print("Process finished")
-        new_db_modified.to_csv(f"{output_folder}/tp_physical_values_modified_format.csv")  ## output csv
 
         ## MICROVER POST PROCESSING END ##
         df_phys.to_csv(f"{output_folder}/tp_physical_values.csv")

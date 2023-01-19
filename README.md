@@ -26,6 +26,5 @@
 
 ## Output Files
 
-- \output\LOG\4D7DC2F1\[LOG]\[LOG_]\tp_physical_values_modified_format.csv
-- \output\LOG\4D7DC2F1\[LOG]\[LOG_]\tp_engine_specific_physical_values_[Engine Model]_[Source Address].csv
+- \output\LOG\4D7DC2F1\[LOG]\[LOG_]\tp_engine_specific_physical_values_[Engine Number].csv
 - \output\LOG\4D7DC2F1\00000002\00000002-63878C18\tp_physical_values_ascii.csv
